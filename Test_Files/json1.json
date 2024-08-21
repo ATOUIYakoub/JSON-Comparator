@@ -1,0 +1,36 @@
+[
+    {
+        "Titre": "Section 1",
+        "Text": "This is the text for section 1.",
+        "sub_sections": [
+          {
+            "Titre": "Subsection 1.1",
+            "Text": "Text for subsection 1.1",
+            "sub_sections": [
+              {
+                "Titre": "Subsubsection 1.1.1",
+                "Text": "Deeply nested text in subsection 1.1.1",
+                "sub_sections": []
+              },
+              {
+                "Titre": "Subsubsection 1.1.2",
+                "Text": "Another deeply nested text in subsection 1.1.2",
+                "sub_sections": [
+                  {
+                    "Titre": "Subsubsubsection 1.1.2.1",
+                    "Text": "Even deeper nested text in subsection 1.1.2.1",
+                    "sub_sections": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Titre": "Subsection 1.2",
+            "Text": "Text for subsection 1.2",
+            "sub_sections": []
+          }
+        ]
+      }
+      
+]

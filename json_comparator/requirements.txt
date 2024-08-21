@@ -1,0 +1,7 @@
+asgiref==3.8.1
+deepdiff==7.0.1
+Django==5.1
+djangorestframework==3.15.2
+ordered-set==4.1.0
+sqlparse==0.5.1
+tzdata==2024.1

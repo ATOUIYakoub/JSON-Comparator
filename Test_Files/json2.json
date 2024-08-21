@@ -1,0 +1,25 @@
+[
+    {
+        "Titre": "Section 1",
+        "Text": "This is the text for section 1.",
+        "sub_sections": [
+            {
+                "Titre": "Subsection 1.1",
+                "Text": "Text for subsection 1.1 modified",
+                "sub_sections": [
+                    {
+                        "Titre": "Subsubsection 1.1.1",
+                        "Text": "Deeply nested text in subsection 1.1.1",
+                        "sub_sections": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "Titre": "Section 3",
+        "Text": "This is a new section added in json2.",
+        "sub_sections": []
+    }
+
+]
