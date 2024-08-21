@@ -10,15 +10,104 @@
                     {
                         "Titre": "Subsubsection 1.1.1",
                         "Text": "Deeply nested text in subsection 1.1.1",
-                        "sub_sections": []
+                        "sub_sections": [],
+                        "id": "1.1.1",
+                        "depth": 2
                     }
-                ]
+                ],
+                "id": "1.1",
+                "depth": 1
             }
-        ]
+        ],
+        "id": "1",
+        "depth": 0
     },
     {
-        "Titre": "<span style=\"background-color: lightgreen;\">Section 3</span>",
-        "Text": "<span style=\"background-color: lightgreen;\">This is a new section added in json2.</span>",
-        "sub_sections": []
+        "Titre": "              ",
+        "Text": "                       ",
+        "sub_sections": [
+            {
+                "Titre": "                   ",
+                "Text": "                                      ",
+                "sub_sections": [],
+                "id": "     ",
+                "depth": 2
+            },
+            {
+                "Titre": "                   ",
+                "Text": "                                              ",
+                "sub_sections": [
+                    {
+                        "Titre": "                        ",
+                        "Text": "                                             ",
+                        "sub_sections": [],
+                        "id": "       ",
+                        "depth": 3
+                    }
+                ],
+                "id": "     ",
+                "depth": 2
+            }
+        ],
+        "id": "   ",
+        "depth": 1
+    },
+    {
+        "Titre": "                   ",
+        "Text": "                                      ",
+        "sub_sections": [],
+        "id": "     ",
+        "depth": 2
+    },
+    {
+        "Titre": "                   ",
+        "Text": "                                              ",
+        "sub_sections": [
+            {
+                "Titre": "                        ",
+                "Text": "                                             ",
+                "sub_sections": [],
+                "id": "       ",
+                "depth": 3
+            }
+        ],
+        "id": "     ",
+        "depth": 2
+    },
+    {
+        "Titre": "                        ",
+        "Text": "                                             ",
+        "sub_sections": [],
+        "id": "       ",
+        "depth": 3
+    },
+    {
+        "Titre": "              ",
+        "Text": "                       ",
+        "sub_sections": [],
+        "id": "   ",
+        "depth": 1
+    },
+    {
+        "Titre": "Subsection 1.1",
+        "Text": "Text for subsection 1.1 modified",
+        "sub_sections": [
+            {
+                "Titre": "Subsubsection 1.1.1",
+                "Text": "Deeply nested text in subsection 1.1.1",
+                "sub_sections": [],
+                "id": "1.1.1",
+                "depth": 2
+            }
+        ],
+        "id": "1.1",
+        "depth": 1
+    },
+    {
+        "Titre": "Section 3",
+        "Text": "This is a new section added in json2.",
+        "sub_sections": [],
+        "id": "2",
+        "depth": 0
     }
 ]
