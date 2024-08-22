@@ -33,7 +33,7 @@ def highlight_all_subsections(section):
 
 def compare_and_update_sections(sections1, sections2):
     updated_sections1 = []
-    updated_sections2 = sections2.copy()
+    updated_sections2 = []
 
     for section1 in sections1:
         matched_section = next((sec for sec in sections2 if sec["Titre"] == section1["Titre"]), None)
@@ -41,6 +41,7 @@ def compare_and_update_sections(sections1, sections2):
             if section1["Text"] != matched_section["Text"]:
                 matched_section["Text"] = highlight_differences(section1["Text"], matched_section["Text"])
             section1["sub_sections"], matched_section["sub_sections"] = compare_and_update_sections(section1["sub_sections"], matched_section["sub_sections"])
+            updated_sections2.append(matched_section)
         else:
             empty_section = add_empty_subsections(section1)
             updated_sections2.append(empty_section)
@@ -60,7 +61,7 @@ def compare_json_logic(json1_data, json2_data):
     updated_json1 = json1_data.copy()
     updated_json2 = json2_data.copy()
 
-    updated_json1[0]["sub_sections"], updated_json2[0]["sub_sections"] = compare_and_update_sections(json1_data[0]["sub_sections"], json2_data[0]["sub_sections"])
+    updated_json1, updated_json2 = compare_and_update_sections(json1_data, json2_data)
 
     return updated_json1, updated_json2
 

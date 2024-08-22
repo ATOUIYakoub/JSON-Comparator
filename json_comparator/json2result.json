@@ -33,8 +33,8 @@
         ]
     },
     {
-        "Titre": "Section 2",
-        "Text": "This is a new section added in json2.",
+        "Titre": "<span style=\"background-color: lightgreen;\">Section 2</span>",
+        "Text": "<span style=\"background-color: lightgreen;\">This is a new section added in json2.</span>",
         "sub_sections": []
     }
 ]
