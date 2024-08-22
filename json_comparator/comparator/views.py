@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import difflib
 
-def highlight_text(text, color="lightgreen"):
+def highlight_text(text, color):
     return f'<span style="background-color: {color};">{text}</span>'
 
 def add_empty_subsections(section):
@@ -13,25 +13,27 @@ def add_empty_subsections(section):
         "sub_sections": [add_empty_subsections(sub) for sub in section["sub_sections"]]
     }
 
-def highlight_differences(text1, text2):
+def highlight_differences(text1, text2, color1, color2):
     differ = difflib.Differ()
     diff = list(differ.compare(text1.split(), text2.split()))
     highlighted_text = []
     for part in diff:
         if part.startswith('+ '):
-            highlighted_text.append(highlight_text(part[2:]))
-        elif part.startswith('  ') or part.startswith('- '):
+            highlighted_text.append(highlight_text(part[2:], color2))
+        elif part.startswith('- '):
+            highlighted_text.append(highlight_text(part[2:], color1))
+        else:
             highlighted_text.append(part[2:])
     return ' '.join(highlighted_text)
 
-def highlight_all_subsections(section):
-    section["Titre"] = highlight_text(section["Titre"])
-    section["Text"] = highlight_text(section["Text"])
+def highlight_all_subsections(section, color):
+    section["Titre"] = highlight_text(section["Titre"], color)
+    section["Text"] = highlight_text(section["Text"], color)
     for sub in section["sub_sections"]:
-        highlight_all_subsections(sub)
+        highlight_all_subsections(sub, color)
     return section
 
-def compare_and_update_sections(sections1, sections2):
+def compare_and_update_sections(sections1, sections2, color1, color2):
     updated_sections1 = []
     updated_sections2 = []
 
@@ -39,20 +41,20 @@ def compare_and_update_sections(sections1, sections2):
         matched_section = next((sec for sec in sections2 if sec["Titre"] == section1["Titre"]), None)
         if matched_section:
             if section1["Text"] != matched_section["Text"]:
-                matched_section["Text"] = highlight_differences(section1["Text"], matched_section["Text"])
-            section1["sub_sections"], matched_section["sub_sections"] = compare_and_update_sections(section1["sub_sections"], matched_section["sub_sections"])
+                matched_section["Text"] = highlight_differences(section1["Text"], matched_section["Text"], color1, color2)
+            section1["sub_sections"], matched_section["sub_sections"] = compare_and_update_sections(section1["sub_sections"], matched_section["sub_sections"], color1, color2)
             updated_sections2.append(matched_section)
         else:
             empty_section = add_empty_subsections(section1)
             updated_sections2.append(empty_section)
-            section1 = highlight_all_subsections(section1)
+            section1 = highlight_all_subsections(section1, color1)
         updated_sections1.append(section1)
 
     for section2 in sections2:
         if not any(sec["Titre"] == section2["Titre"] for sec in sections1):
             empty_section = add_empty_subsections(section2)
             updated_sections1.append(empty_section)
-            section2 = highlight_all_subsections(section2)
+            section2 = highlight_all_subsections(section2, color2)
             updated_sections2.append(section2)
 
     return updated_sections1, updated_sections2
@@ -61,7 +63,7 @@ def compare_json_logic(json1_data, json2_data):
     updated_json1 = json1_data.copy()
     updated_json2 = json2_data.copy()
 
-    updated_json1, updated_json2 = compare_and_update_sections(json1_data, json2_data)
+    updated_json1, updated_json2 = compare_and_update_sections(json1_data, json2_data, "lightcoral", "lightgreen")
 
     return updated_json1, updated_json2
 

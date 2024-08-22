@@ -13,12 +13,12 @@
                         "sub_sections": []
                     },
                     {
-                        "Titre": "<span style=\"background-color: lightgreen;\">Subsubsection 1.1.2</span>",
-                        "Text": "<span style=\"background-color: lightgreen;\">Another deeply nested text in subsection 1.1.2</span>",
+                        "Titre": "<span style=\"background-color: lightcoral;\">Subsubsection 1.1.2</span>",
+                        "Text": "<span style=\"background-color: lightcoral;\">Another deeply nested text in subsection 1.1.2</span>",
                         "sub_sections": [
                             {
-                                "Titre": "<span style=\"background-color: lightgreen;\">Subsubsubsection 1.1.2.1</span>",
-                                "Text": "<span style=\"background-color: lightgreen;\">Even deeper nested text in subsection 1.1.2.1</span>",
+                                "Titre": "<span style=\"background-color: lightcoral;\">Subsubsubsection 1.1.2.1</span>",
+                                "Text": "<span style=\"background-color: lightcoral;\">Even deeper nested text in subsection 1.1.2.1</span>",
                                 "sub_sections": []
                             }
                         ]
@@ -26,8 +26,8 @@
                 ]
             },
             {
-                "Titre": "<span style=\"background-color: lightgreen;\">Subsection 1.2</span>",
-                "Text": "<span style=\"background-color: lightgreen;\">Text for subsection 1.2</span>",
+                "Titre": "<span style=\"background-color: lightcoral;\">Subsection 1.2</span>",
+                "Text": "<span style=\"background-color: lightcoral;\">Text for subsection 1.2</span>",
                 "sub_sections": []
             }
         ]
