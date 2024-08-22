@@ -17,9 +17,8 @@
         ]
     },
     {
-        "Titre": "Section 3",
+        "Titre": "Section 2",
         "Text": "This is a new section added in json2.",
         "sub_sections": []
     }
-
 ]
