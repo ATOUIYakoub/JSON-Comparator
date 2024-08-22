@@ -1,55 +1,68 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-import os
-from difflib import ndiff
+import difflib
 
+def highlight_text(text, color="lightgreen"):
+    return f'<span style="background-color: {color};">{text}</span>'
 
-def compare_json_logic(json1_data, json2_data):
-    result = {
-        "added": {},
-        "removed": {},
-        "changed": {},
-        "updated_json1": [],
-        "highlighted_json2": []
+def add_empty_subsections(section):
+    return {
+        "Titre": "         ",
+        "Text": "                                     ",
+        "sub_sections": [add_empty_subsections(sub) for sub in section["sub_sections"]]
     }
 
-    # Step 1: Add unique IDs and depth to both JSON structures
-    add_ids_to_sections(json1_data)
-    add_ids_to_sections(json2_data)
+def highlight_differences(text1, text2):
+    differ = difflib.Differ()
+    diff = list(differ.compare(text1.split(), text2.split()))
+    highlighted_text = []
+    for part in diff:
+        if part.startswith('+ '):
+            highlighted_text.append(highlight_text(part[2:]))
+        elif part.startswith('  ') or part.startswith('- '):
+            highlighted_text.append(part[2:])
+    return ' '.join(highlighted_text)
 
-    # Step 2: Find equivalents and handle missing sections by adding empty ones
-    correspondences = find_section_equivalents(json1_data, json2_data)
+def highlight_all_subsections(section):
+    section["Titre"] = highlight_text(section["Titre"])
+    section["Text"] = highlight_text(section["Text"])
+    for sub in section["sub_sections"]:
+        highlight_all_subsections(sub)
+    return section
 
-    for correspondence in correspondences:
-        result["updated_json1"].append(correspondence["json1"])
-        result["highlighted_json2"].append(correspondence["json2"])
+def compare_and_update_sections(sections1, sections2):
+    updated_sections1 = []
+    updated_sections2 = sections2.copy()
 
-    return result
+    for section1 in sections1:
+        matched_section = next((sec for sec in sections2 if sec["Titre"] == section1["Titre"]), None)
+        if matched_section:
+            if section1["Text"] != matched_section["Text"]:
+                matched_section["Text"] = highlight_differences(section1["Text"], matched_section["Text"])
+            section1["sub_sections"], matched_section["sub_sections"] = compare_and_update_sections(section1["sub_sections"], matched_section["sub_sections"])
+        else:
+            empty_section = add_empty_subsections(section1)
+            updated_sections2.append(empty_section)
+            section1 = highlight_all_subsections(section1)
+        updated_sections1.append(section1)
 
+    for section2 in sections2:
+        if not any(sec["Titre"] == section2["Titre"] for sec in sections1):
+            empty_section = add_empty_subsections(section2)
+            updated_sections1.append(empty_section)
+            section2 = highlight_all_subsections(section2)
+            updated_sections2.append(section2)
 
-def compare_subsections(subsections1, subsections2):
-    updated_subsections = []
+    return updated_sections1, updated_sections2
 
-    for subsection1 in subsections1:
-        matched_subsection = next((subsec for subsec in subsections2 if subsec["Titre"] == subsection1["Titre"]), None)
-        if matched_subsection:
-            if subsection1["Text"] != matched_subsection["Text"]:
-                subsection1["Text"] = highlight_differences(subsection1["Text"], matched_subsection["Text"])
-            subsection1["sub_sections"] = compare_subsections(subsection1["sub_sections"], matched_subsection["sub_sections"])
-        updated_subsections.append(subsection1)
+def compare_json_logic(json1_data, json2_data):
+    updated_json1 = json1_data.copy()
+    updated_json2 = json2_data.copy()
 
-    for subsection2 in subsections2:
-        if not any(subsec["Titre"] == subsection2["Titre"] for subsec in subsections1):
-            highlighted_subsection = {
-                "Titre": f'<span style="background-color: lightgreen;">{subsection2["Titre"]}</span>',
-                "Text": f'<span style="background-color: lightgreen;">{subsection2["Text"]}</span>',
-                "sub_sections": []
-            }
-            updated_subsections.append(highlighted_subsection)
+    updated_json1[0]["sub_sections"], updated_json2[0]["sub_sections"] = compare_and_update_sections(json1_data[0]["sub_sections"], json2_data[0]["sub_sections"])
 
-    return updated_subsections
-
+    return updated_json1, updated_json2
 
 @csrf_exempt
 def compare_json(request):
@@ -66,95 +79,14 @@ def compare_json(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
 
-        result = compare_json_logic(json1_data, json2_data)
+        updated_json1, updated_json2 = compare_json_logic(json1_data, json2_data)
 
-        with open('updated_json1.json', 'w', encoding='utf-8') as f:
-            json.dump(result["updated_json1"], f, ensure_ascii=False, indent=4)
+        with open('json1result.json', 'w', encoding='utf-8') as f:
+            json.dump(updated_json1, f, ensure_ascii=False, indent=4)
 
-        with open('highlighted_json2.json', 'w', encoding='utf-8') as f:
-            json.dump(result["highlighted_json2"], f, ensure_ascii=False, indent=4)
+        with open('json2result.json', 'w', encoding='utf-8') as f:
+            json.dump(updated_json2, f, ensure_ascii=False, indent=4)
 
         return JsonResponse({'message': 'Comparison completed successfully, and files have been saved.'}, safe=False)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-
-# Function to highlight differences between two strings at the character level
-def highlight_differences(original, updated, color_removed="lightcoral", color_added="lightgreen"):
-    diff = list(ndiff(original, updated))
-    result_html = ""
-
-    for char in diff:
-        if char.startswith("-"):  # Removed in the updated version
-            result_html += f'<span style="background-color: {color_removed};">{char[2:]}</span>'
-        elif char.startswith("+"):  # Added in the updated version
-            result_html += f'<span style="background-color: {color_added};">{char[2:]}</span>'
-        else:  # Unchanged characters
-            result_html += char[2:]
-
-    return result_html
-
-
-# Function to add unique IDs and depth to sections
-def add_ids_to_sections(sections, prefix="", depth=0):
-    for index, section in enumerate(sections):
-        section_id = f"{prefix}{index + 1}"
-        section["id"] = section_id
-        section["depth"] = depth
-        if "sub_sections" in section:
-            add_ids_to_sections(section["sub_sections"], prefix=f"{section_id}.", depth=depth + 1)
-
-
-# Function to generate an empty section with white spaces for missing sections
-def generate_empty_section(section):
-    empty_section = {}
-    for key, value in section.items():
-        if isinstance(value, str):
-            empty_section[key] = " " * len(value)  # Replace strings with equivalent whitespace
-        elif isinstance(value, list):
-            empty_section[key] = [generate_empty_section(sub_section) for sub_section in value]
-        else:
-            empty_section[key] = value
-    return empty_section
-
-
-# Function to compare and highlight differences in sections
-def highlight_differences_in_section(section1, section2):
-    section1["Titre"] = highlight_differences(section1["Titre"], section2["Titre"])
-    section1["Text"] = highlight_differences(section1["Text"], section2["Text"])
-
-
-# Function to find equivalents and handle missing sections by adding empty ones
-def find_section_equivalents(json1, json2):
-    correspondences = []
-
-    def find_equivalent_for_section(section, candidates):
-        for candidate in candidates:
-            if section["Titre"].strip() == candidate["Titre"].strip() and section["Text"].strip() == candidate["Text"].strip():
-                return candidate
-        return None
-
-    def match_sections(sections1, sections2):
-        for section in sections1:
-            equivalent_section = find_equivalent_for_section(section, sections2)
-            if equivalent_section:
-                highlight_differences_in_section(section, equivalent_section)
-            correspondences.append({
-                "json1": section,
-                "json2": equivalent_section if equivalent_section else generate_empty_section(section),
-                "depth": section["depth"]
-            })
-            if equivalent_section:
-                sections2.remove(equivalent_section)
-            if "sub_sections" in section:
-                match_sections(section["sub_sections"], equivalent_section["sub_sections"] if equivalent_section else [])
-
-        for remaining_section in sections2:
-            correspondences.append({
-                "json1": generate_empty_section(remaining_section),
-                "json2": remaining_section,
-                "depth": remaining_section["depth"]
-            })
-
-    match_sections(json1, json2)
-    return correspondences
